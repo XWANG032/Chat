@@ -95,8 +95,14 @@ export default function Home() {
             <TextField
               label="Message"
               fullWidth value={message}
-              onChange={(e) => setMessage(e.target.value)}>
-            </TextField>
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter'){
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              />
             <Button variant="contained" onClick={sendMessage}>
               Send
             </Button>
