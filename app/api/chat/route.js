@@ -12,18 +12,22 @@ const systemPrompt = `You are HeadstarterAI's Customer Support Bot. Assist users
 7. Maintain a supportive tone, provide accurate information, and ensure user privacy.`
 
 export async function POST(req){
-    const openai = new OpenAI()
+    const openai = new OpenAI({
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey: process.env.OPENROUTER_API_KEY
+        }
+    )
     const data = await req.json()
 
     const completion = await openai.chat.completions.create({
         messages: [
             {
                 role: "system",
-                content: SystemPrompt,
+                content: systemPrompt,
             },
             ...data,
         ],
-        model: 'gpt-4o-mini',
+        model: 'meta-llama/llama-3.1-8b-instruct:free',
         stream: true,
     })
 
