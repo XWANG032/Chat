@@ -19,7 +19,7 @@ export async function POST(req){
         messages: [
             {
                 role: "system",
-                content: SystemPrompt,
+                content: systemPrompt,
             },
             ...data,
         ],
