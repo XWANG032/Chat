@@ -1,6 +1,6 @@
 'use client'
 import Image from "next/image";
-import React, {useState, useRef} from 'react'
+import React, {useState, useRef, useEffect} from 'react'
 import {Box, Stack, Button, TextField, InputAdornment } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import SearchIcon from '@mui/icons-material/Search'
@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close'
 export default function Home() {
   const [messages, setMessages] = useState([{
     role: 'assistant',
-    content: `Hi I'm the Headstarter Support Agent, how can I assist you today?`,
+    content: `Hi I'm the Headstarter Support Agent, how can I assist you today? If you would like to talk to an agent at any point of this conversation, type "agent".`,
   }])
 
   const [message, setMessage] = useState('');
@@ -18,6 +18,7 @@ export default function Home() {
   const messageRefs = useRef([]);
   const [messageId, setMessageId] = useState(0);
   const [matchedIndices, setMatchedIndices] = useState([]);
+  const endOfMessagesRef = useRef(null);
 
 
   const handleSearchView = () =>{
@@ -48,7 +49,6 @@ export default function Home() {
       {role: 'assistant', content: '', id: messageId + 1},
     ])
     setMessage('')
-    /***
     const response = await fetch('/api/chat', {
       method: "POST",
       headers: {
@@ -79,9 +79,12 @@ export default function Home() {
         return reader.read().then(processText)
       })
     })
-      */
     setMessageId(prevId => prevId + 2);
   }
+
+  useEffect(() => {
+    endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth"});
+  }, [messages]);
 
   return (
     <Box 
@@ -138,7 +141,7 @@ export default function Home() {
             alignItems="center" 
             paddingInlineStart={2}
             paddingInlineEnd={2}>
-              <h2>Headstarter AI Customer Support Chat</h2>
+              <h2>Customer Support Chat</h2>
               <IconButton onClick={handleSearchView} aria-label="search">
                 <SearchIcon />
               </IconButton>
@@ -153,10 +156,9 @@ export default function Home() {
           border="1px solid black" 
           p={2} 
           spacing={3}
-          style = {{
-            borderBottomLeftRadius: "16px",
-            borderBottomRightRadius: "16px"
-          }}>
+          borderRadius="0 0 16px 16px"
+          overflow= "hidden"
+          >
             <Stack
               direction="column"
               spacing={2}
@@ -195,6 +197,7 @@ export default function Home() {
                   </Box>
                 );
               })}
+              <div ref={endOfMessagesRef} />
             </Stack>
             <Stack direction="row" spacing={2}>
               <TextField
