@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close'
 export default function Home() {
   const [messages, setMessages] = useState([{
     role: 'assistant',
-    content: `Hi I'm the Headstarter Support Agent, how can I assist you today? If you would like to talk to an agent at any point of this conversation, type "agent".`,
+    content: `Hi I'm the Headstarter Support Agent, how can I assist you today? If you would like to talk to an agent at any point of this conversation, type "Agent".`,
   }])
 
   const [message, setMessage] = useState('');
@@ -43,42 +43,53 @@ export default function Home() {
   };
   
   const sendMessage = async()=>{
-    setMessages((messages)=>[
-      ...messages,
-      {role:'user', content: message, id: messageId},
-      {role: 'assistant', content: '', id: messageId + 1},
-    ])
-    setMessage('')
-    const response = await fetch('/api/chat', {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([...messages, {role: 'user', content: message}]),
-    }).then(async (res)=>{
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
+    if(message.toLowerCase() != "agent"){
+      setMessages((messages)=>[
+        ...messages,
+        {role:'user', content: message, id: messageId},
+        {role: 'assistant', content: '', id: messageId + 1},
+      ])
 
-      let result =''
-      return reader.read().then(function processText({done, value}){
-        if (done){
-          return result
-        }
-        const text = decoder.decode(value || new Uint8Array(), {stream: true})
-        setMessages((messages)=>{
-          let lastMessage = messages[messages.length - 1]
-          let otherMessages = messages.slice(0, messages.length - 1)
-          return([
-            ...otherMessages,
-            {
-              ...lastMessage,
-              content: lastMessage.content + text,
-            },
-          ])
+      const response = await fetch('/api/chat', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([...messages, {role: 'user', content: message}]),
+      }).then(async (res)=>{
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+  
+        let result =''
+        return reader.read().then(function processText({done, value}){
+          if (done){
+            return result
+          }
+          const text = decoder.decode(value || new Uint8Array(), {stream: true})
+          setMessages((messages)=>{
+            let lastMessage = messages[messages.length - 1]
+            let otherMessages = messages.slice(0, messages.length - 1)
+            return([
+              ...otherMessages,
+              {
+                ...lastMessage,
+                content: lastMessage.content + text,
+              },
+            ])
+          })
+          return reader.read().then(processText)
         })
-        return reader.read().then(processText)
       })
-    })
+    }
+    else{
+      setMessages((messages)=>[
+        ...messages,
+        {role:'user', content: message, id: messageId},
+        {role: 'assistant', content: 'Please feel free to contact us at 917-331-9110 or via email at chatSupport@gmail.com.', id: messageId + 1},
+      ])
+    }
+
+    setMessage('')
     setMessageId(prevId => prevId + 2);
   }
 
@@ -126,7 +137,6 @@ export default function Home() {
                   searchMessage();
                 }
               }}>
-                Test
               </TextField>
               <IconButton onClick={handleSearchView} aria-label="close">
                 <CloseIcon />
