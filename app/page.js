@@ -49,7 +49,7 @@ export default function Home() {
         {role:'user', content: message, id: messageId},
         {role: 'assistant', content: '', id: messageId + 1},
       ])
-
+      setMessage('')
       const response = await fetch('/api/chat', {
         method: "POST",
         headers: {
